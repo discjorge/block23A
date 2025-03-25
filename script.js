@@ -1,6 +1,6 @@
 // Use the API_URL variable to make fetch requests to the API.
 // Replace the placeholder with your cohort name (ex: 2109-UNF-HY-WEB-PT)
-const cohortName = "YOUR COHORT NAME HERE";
+const cohortName = "2501-FTB-ET-WEB-PT";
 const API_URL = `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}`;
 
 /**
@@ -10,6 +10,12 @@ const API_URL = `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}`;
 const fetchAllPlayers = async () => {
   try {
     // TODO
+    const response = await fetch(
+      `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}`
+    );
+    const result = await response.json();
+    //console.log(result);
+    return result;
   } catch (err) {
     console.error("Uh oh, trouble fetching players!", err);
   }
@@ -22,7 +28,11 @@ const fetchAllPlayers = async () => {
  */
 const fetchSinglePlayer = async (playerId) => {
   try {
-    // TODO
+    const response = await fetch(
+      `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}/players/${playerId}`
+    );
+    const result = await response.json();
+    return result;
   } catch (err) {
     console.error(`Oh no, trouble fetching player #${playerId}!`, err);
   }
@@ -36,6 +46,20 @@ const fetchSinglePlayer = async (playerId) => {
 const addNewPlayer = async (playerObj) => {
   try {
     // TODO
+    const response = await fetch(
+      `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}/players`,
+      {
+        //TODO
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(playerObj),
+      }
+    );
+    const result = await response.json();
+    //console.log(result);
+    return result;
   } catch (err) {
     console.error("Oops, something went wrong with adding that player!", err);
   }
@@ -48,6 +72,12 @@ const addNewPlayer = async (playerObj) => {
 const removePlayer = async (playerId) => {
   try {
     // TODO
+    const response = await fetch(
+      `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}/players/${playerId}`,
+      { method: "DELETE" }
+    );
+    const result = await response.json();
+    //console.log(result);
   } catch (err) {
     console.error(
       `Whoops, trouble removing player #${playerId} from the roster!`,
