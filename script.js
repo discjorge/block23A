@@ -1,7 +1,14 @@
 // Use the API_URL variable to make fetch requests to the API.
 // Replace the placeholder with your cohort name (ex: 2109-UNF-HY-WEB-PT)
-const cohortName = "2501-FTB-ET-WEB-PT";
+const cohortName = "2501-PUPPIES";
 const API_URL = `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}`;
+
+state = {
+  allPlayers: [],
+  favPlayer: [],
+};
+
+const main = document.querySelector("main");
 
 /**
  * Fetches all players from the API.
@@ -11,11 +18,12 @@ const fetchAllPlayers = async () => {
   try {
     // TODO
     const response = await fetch(
-      `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}`
+      `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}/players`
     );
     const result = await response.json();
-    //console.log(result);
-    return result;
+    // console.log(result);
+    //  console.log(result.data);
+    return result.data.players;
   } catch (err) {
     console.error("Uh oh, trouble fetching players!", err);
   }
@@ -32,7 +40,7 @@ const fetchSinglePlayer = async (playerId) => {
       `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}/players/${playerId}`
     );
     const result = await response.json();
-    return result;
+    return result.data.player;
   } catch (err) {
     console.error(`Oh no, trouble fetching player #${playerId}!`, err);
   }
@@ -59,7 +67,7 @@ const addNewPlayer = async (playerObj) => {
     );
     const result = await response.json();
     //console.log(result);
-    return result;
+    return result.data.players;
   } catch (err) {
     console.error("Oops, something went wrong with adding that player!", err);
   }
@@ -106,7 +114,41 @@ const removePlayer = async (playerId) => {
  * @param {Object[]} playerList - an array of player objects
  */
 const renderAllPlayers = (playerList) => {
-  // TODO
+  main.innerHTML = "";
+  if (playerList.length !== 0) {
+    playerList.forEach((pet) => {
+      const card = document.createElement("div");
+      card.classList.add("petCard");
+      card.innerHTML = `
+    <h2>${pet.name}</h1>
+    <h3>${pet.id}</h2>
+    <img src="${pet.imageUrl}" width="100" height="100"/>
+    <br/>
+    `;
+      const detailsButton = document.createElement("button");
+      detailsButton.textContent = "See Details";
+      detailsButton.setAttribute("type", "submit");
+      const removePlayerButton = document.createElement("button");
+      removePlayerButton.textContent = "Remove Player";
+      removePlayerButton.setAttribute("type", "submit");
+      main.appendChild(card);
+      main.appendChild(detailsButton);
+      main.appendChild(removePlayerButton);
+
+      detailsButton.addEventListener("click", async () => {
+        const player = await fetchSinglePlayer(pet.id);
+        renderSinglePlayer(player);
+      });
+
+      removePlayerButton.addEventListener("click", async () => {
+        await removePlayer(pet.id);
+        const updatedPlayers = await fetchAllPlayers();
+        renderAllPlayers(updatedPlayers);
+      });
+    });
+  } else {
+    alert("Sorry there's no players");
+  }
 };
 
 /**
@@ -124,8 +166,25 @@ const renderAllPlayers = (playerList) => {
  */
 const renderSinglePlayer = (player) => {
   // TODO
+  main.innerHTML = "";
+  const card = document.createElement("div");
+  card.classList.add("petCard");
+  card.innerHTML = `
+    <h1>${player.name}</h1>
+    <h2>${player.id}</h2>
+    <h2>${player.breed}</h2>
+    <img src="${player.imageUrl}"/>
+    `;
+  const backButton = document.createElement("button");
+  backButton.textContent = "Back To All Players";
+  backButton.setAttribute("type", "submit");
+  main.appendChild(card);
+  main.appendChild(backButton);
+  backButton.addEventListener("click", async () => {
+    const allPlayers = await fetchAllPlayers();
+    renderAllPlayers(allPlayers);
+  });
 };
-
 /**
  * Fills in `<form id="new-player-form">` with the appropriate inputs and a submit button.
  * When the form is submitted, it should call `addNewPlayer`, fetch all players,
@@ -146,7 +205,7 @@ const init = async () => {
   const players = await fetchAllPlayers();
   renderAllPlayers(players);
 
-  renderNewPlayerForm();
+  // renderNewPlayerForm();
 };
 
 // This script will be run using Node when testing, so here we're doing a quick
